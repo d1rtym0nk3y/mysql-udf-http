@@ -96,17 +96,31 @@ char *http_get(UDF_INIT *initid, UDF_ARGS *args,
     retref= curl_easy_perform(curl);
     if (retref) {
       fprintf(stderr, "error\n");
-      strcpy(res->result,"");
-      *length= 0;
+      if (res && res->result)
+	strcpy(res->result,"");
+
+      if (length)
+	*length= 0;
     }
   }
   else
   {
-    strcpy(res->result,"");
-    *length= 0;
+    if (res && res->result)
+      strcpy(res->result,"");
+
+    if (length)
+      *length= 0;
   }
   curl_easy_cleanup(curl);
-  *length= res->size;
+
+  if (res)
+    *length= res->size;
+  else {
+    *length = 0;
+    if (!res)
+      return NULL;
+  }
+
   return ((char *) res->result);
 }
 
